@@ -15,3 +15,4 @@ export declare class ODataControllerBase {
 declare const ODataController_base: odata.IODataBase<ODataControllerBase, typeof ODataControllerBase> & typeof ODataControllerBase;
 export declare class ODataController extends ODataController_base {
 }
+export {};

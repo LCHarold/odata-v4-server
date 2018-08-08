@@ -1,4 +1,3 @@
-/// <reference types="express" />
 import "reflect-metadata";
 import { Token } from "odata-v4-parser/lib/lexer";
 import { ErrorRequestHandler } from "express";
@@ -371,3 +370,4 @@ export declare class ODataEntityBase {
 declare const ODataEntity_base: IODataBase<ODataEntityBase, typeof ODataEntityBase> & typeof ODataEntityBase;
 export declare class ODataEntity extends ODataEntity_base {
 }
+export {};

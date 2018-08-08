@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Transform } from "stream";
 import { ODataResult } from "./result";
-export declare type GeneratorAction = (value?) => any;
+export declare type GeneratorAction = (value?: any) => any;
 export declare type PromiseGeneratorHandler = Promise<any> | void;
 export declare namespace ODataGeneratorHandlers {
     function PromiseHandler(request: any, next: GeneratorAction): PromiseGeneratorHandler;
@@ -11,7 +11,7 @@ export declare namespace ODataGeneratorHandlers {
 export declare enum ODataMetadataType {
     minimal = 0,
     full = 1,
-    none = 2,
+    none = 2
 }
 export interface ODataProcessorOptions {
     disableEntityConversion: boolean;
@@ -44,23 +44,23 @@ export declare class ODataProcessor extends Transform {
     constructor(context: any, server: any, options?: ODataProcessorOptions);
     _transform(chunk: any, _: string, done: Function): any;
     protected _flush(done?: Function): void;
-    private __qualifiedTypeName(part);
-    private __EntityCollectionNavigationProperty(part);
-    private __EntityNavigationProperty(part);
-    private __PrimitiveProperty(part);
-    private __read(ctrl, part, params, data?, filter?, elementType?, include?, select?);
-    private __deserialize(obj, type);
-    private __stripOData(obj);
-    private __EntitySetName(part);
-    private __actionOrFunctionImport(part);
-    private __actionOrFunction(part);
-    private __appendLinks(ctrl, elementType, context, body, result?);
-    private __appendODataContext(result, ctrlType, includes?, select?);
-    private __resolveAsync(type, prop, propValue, entity, converter);
-    private __setODataType(context, elementType);
-    private __convertEntity(context, result, elementType, includes?, select?);
-    private __include(include, select, context, prop, ctrl, result, elementType);
-    private __enableStreaming(part);
-    private __applyParams(container, name, params, queryString?, result?, include?);
+    private __qualifiedTypeName;
+    private __EntityCollectionNavigationProperty;
+    private __EntityNavigationProperty;
+    private __PrimitiveProperty;
+    private __read;
+    private __deserialize;
+    private __stripOData;
+    private __EntitySetName;
+    private __actionOrFunctionImport;
+    private __actionOrFunction;
+    private __appendLinks;
+    private __appendODataContext;
+    private __resolveAsync;
+    private __setODataType;
+    private __convertEntity;
+    private __include;
+    private __enableStreaming;
+    private __applyParams;
     execute(body?: any): Promise<ODataResult>;
 }

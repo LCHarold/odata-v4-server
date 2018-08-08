@@ -1,4 +1,3 @@
-/// <reference types="express" />
 /// <reference types="node" />
 import { ServiceMetadata } from "odata-v4-service-metadata";
 import { ServiceDocument } from "odata-v4-service-document";
@@ -83,3 +82,4 @@ export declare function createODataServer(server: typeof ODataServer, path: stri
  * @param hostname hostname for Express
  */
 export declare function createODataServer(server: typeof ODataServer, port: number, hostname: string): void;
+export {};

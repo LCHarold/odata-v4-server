@@ -88,9 +88,9 @@ export declare class ResourcePathVisitor {
     protected VisitParameterAlias(node: Token, context: any): void;
     protected VisitLiteral(node: Token, context: any, type: any): Promise<void>;
     protected VisitObject(node: Token, context: any, type: any): void;
-    protected VisitEnum(node: Token, context: any, type: any): void;
-    protected VisitEnumValue(node: Token, context: any, type: any): void;
-    protected VisitEnumerationMember(node: Token, context: any, type: any): void;
+    protected VisitEnum(node: Token, context: any, type: any): Promise<void>;
+    protected VisitEnumValue(node: Token, context: any, type: any): Promise<void>;
+    protected VisitEnumerationMember(node: Token, context: any, type: any): Promise<void>;
     protected VisitEnumMemberValue(node: Token, context: any, type: any): void;
     protected VisitRootExpression(node: Token, context: any, type: any): Promise<void>;
 }

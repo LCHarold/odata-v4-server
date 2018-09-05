@@ -1641,7 +1641,11 @@ class ODataProcessor extends stream_1.Transform {
                     queryAst = this.serverType.parser.query(queryAst, { metadata: this.resourcePath.ast.metadata || this.serverType.$metadata().edmx });
                     if (!include)
                         queryAst = deepmerge(queryAst, this.resourcePath.ast.value.query || {});
-                    yield new visitor_1.ResourcePathVisitor(this.serverType, this.entitySets).Visit(queryAst, {}, (result || this.ctrl.prototype).elementType);
+                    const lastNavigationPath = this.resourcePath.navigation[this.resourcePath.navigation.length - 1];
+                    const queryType = lastNavigationPath.type == "QualifiedEntityTypeName" ?
+                        this.resourcePath.navigation[this.resourcePath.navigation.length - 1].node[visitor_1.ODATA_TYPE] :
+                        (result || this.ctrl.prototype).elementType;
+                    yield new visitor_1.ResourcePathVisitor(this.serverType, this.entitySets).Visit(queryAst, {}, queryType);
                 }
                 params[queryParam] = this.serverType.connector ? this.serverType.connector.createQuery(queryAst, elementType) : queryAst;
                 if (container.prototype instanceof controller_1.ODataControllerBase) {
@@ -1658,7 +1662,11 @@ class ODataProcessor extends stream_1.Transform {
                     filterAst = qs.parse(filterAst).$filter;
                     if (typeof filterAst == "string") {
                         filterAst = this.serverType.parser.filter(filterAst, { metadata: this.resourcePath.ast.metadata || this.serverType.$metadata().edmx });
-                        yield new visitor_1.ResourcePathVisitor(this.serverType, this.entitySets).Visit(filterAst, {}, (result || this.ctrl.prototype).elementType);
+                        const lastNavigationPath = this.resourcePath.navigation[this.resourcePath.navigation.length - 1];
+                        const queryType = lastNavigationPath.type == "QualifiedEntityTypeName" ?
+                            this.resourcePath.navigation[this.resourcePath.navigation.length - 1].node[visitor_1.ODATA_TYPE] :
+                            (result || this.ctrl.prototype).elementType;
+                        yield new visitor_1.ResourcePathVisitor(this.serverType, this.entitySets).Visit(filterAst, {}, queryType);
                     }
                 }
                 else {

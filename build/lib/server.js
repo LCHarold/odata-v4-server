@@ -54,7 +54,7 @@ function ensureODataHeaders(req, res, next) {
         res.send = ((data) => {
             if (typeof data == "object")
                 data = JSON.stringify(data);
-            origsend.call(res, new Buffer(data, bufferEncoding[charset]));
+            origsend.call(res, Buffer.from(data, bufferEncoding[charset]));
         });
     }
     if (typeof next == "function")
@@ -278,7 +278,7 @@ class ODataServerBase extends stream_1.Transform {
         if (typeof port == "number") {
             let app = express();
             app.use(path || "/", router);
-            app.listen(port, hostname);
+            return app.listen(port, hostname);
         }
         return router;
     }

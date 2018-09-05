@@ -5,6 +5,7 @@ import { Edm as Metadata } from "odata-v4-metadata";
 import * as ODataParser from "odata-v4-parser";
 import { Token } from "odata-v4-parser/lib/lexer";
 import * as express from "express";
+import * as http from "http";
 import { Transform, TransformOptions } from "stream";
 import { ODataResult } from "./result";
 import { ODataController } from "./controller";
@@ -49,10 +50,10 @@ export declare class ODataServerBase extends Transform {
     static addController(controller: typeof ODataController, entitySetName?: string, elementType?: Function): any;
     static getController(elementType: Function): any;
     static create(): express.Router;
-    static create(port: number): void;
-    static create(path: string, port: number): void;
-    static create(port: number, hostname: string): void;
-    static create(path?: string | RegExp | number, port?: number | string, hostname?: string): void;
+    static create(port: number): http.Server;
+    static create(path: string, port: number): http.Server;
+    static create(port: number, hostname: string): http.Server;
+    static create(path?: string | RegExp | number, port?: number | string, hostname?: string): http.Server;
 }
 declare const ODataServer_base: odata.IODataBase<ODataServerBase, typeof ODataServerBase> & typeof ODataServerBase;
 export declare class ODataServer extends ODataServer_base {
@@ -69,17 +70,17 @@ export declare function createODataServer(server: typeof ODataServer): express.R
  * @param server OData Server instance
  * @param port   port number for Express to listen to
  */
-export declare function createODataServer(server: typeof ODataServer, port: number): void;
+export declare function createODataServer(server: typeof ODataServer, port: number): http.Server;
 /** Create Express server for OData Server
  * @param server OData Server instance
  * @param path   routing path for Express
  * @param port   port number for Express to listen to
  */
-export declare function createODataServer(server: typeof ODataServer, path: string, port: number): void;
+export declare function createODataServer(server: typeof ODataServer, path: string, port: number): http.Server;
 /** Create Express server for OData Server
  * @param server   OData Server instance
  * @param port     port number for Express to listen to
  * @param hostname hostname for Express
  */
-export declare function createODataServer(server: typeof ODataServer, port: number, hostname: string): void;
+export declare function createODataServer(server: typeof ODataServer, port: number, hostname: string): http.Server;
 export {};

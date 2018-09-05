@@ -381,7 +381,7 @@ function getParameters(target, targetKey) {
 }
 exports.getParameters = getParameters;
 function getChildren(target) {
-    return Reflect.getMetadata(EdmChildren, target) || [];
+    return Reflect.getOwnMetadata(EdmChildren, target) || [];
 }
 exports.getChildren = getChildren;
 /** Edm.Key decorator for describing properties as keys */

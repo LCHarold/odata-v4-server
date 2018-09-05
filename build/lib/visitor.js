@@ -124,7 +124,12 @@ class ResourcePathVisitor {
     }
     VisitFirstMemberExpression(node, context, type) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.Visit(node.value, context, type);
+            const firstMemberContext = Object.assign({}, context, { isFirstMemberExpression: true });
+            yield this.Visit(node.value, firstMemberContext, type);
+            if (firstMemberContext.qualifiedType && firstMemberContext.qualifiedTypeName) {
+                type = firstMemberContext.qualifiedType || type;
+                node.raw = node.raw.split('/').pop();
+            }
             context.type = Edm.getType(type, node.raw, this.serverType.container);
             context.typeName = Edm.getTypeName(type, node.raw, this.serverType.container);
             context.deserializer = Edm.getURLDeserializer(type, node.raw, context.type, this.serverType.container);
@@ -138,13 +143,20 @@ class ResourcePathVisitor {
                     enumNamespace = enumName.slice(0, enumName.lastIndexOf("."));
                     enumName = enumName.slice(enumName.lastIndexOf(".") + 1);
                 }
-                context.typeName = Edm.getTypeName(containerType, enumName, this.serverType.container) || "Edm.Int32";
+                context.typeName = Edm.getTypeName(containerType, enumName, this.serverType.container) ||
+                    Edm.getTypeName(containerType, `${enumNamespace}.${enumName}`, this.serverType.container) ||
+                    "Edm.Int32";
             }
         });
     }
     VisitMemberExpression(node, context, type) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.Visit(node.value, context, type);
+            if (node.value && node.value.name && node.value.value) {
+                yield this.Visit(node.value.name, context, type);
+                yield this.Visit(node.value.value, context, type);
+            }
+            else
+                yield this.Visit(node.value, context, type);
         });
     }
     VisitPropertyPathExpression(node, context, type) {
@@ -201,7 +213,7 @@ class ResourcePathVisitor {
     VisitHasExpression(node, context, type) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield this.Visit(node.value.left, context, type);
-            yield this.Visit(node.value.right, context, context.type || type);
+            yield this.Visit(node.value.right, context, type);
         });
     }
     VisitExpand(node, context, type) {
@@ -290,6 +302,7 @@ class ResourcePathVisitor {
     VisitCollectionNavigation(node, context, type) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             context.isCollection = true;
+            yield this.Visit(node.value.name, context, type);
             yield this.Visit(node.value.path, context, type);
             delete context.isCollection;
         });
@@ -346,12 +359,18 @@ class ResourcePathVisitor {
         if (child) {
             node[exports.ODATA_TYPE] = child;
             node[exports.ODATA_TYPENAME] = node.raw;
-            this.navigation.push({
-                name: node.raw,
-                type: node.type,
-                node
-            });
-            this.path += `/${node.raw}`;
+            if (context.isFirstMemberExpression) {
+                context.qualifiedType = child;
+                context.qualifiedTypeName = node.raw;
+            }
+            else {
+                this.navigation.push({
+                    name: node.raw,
+                    type: node.type,
+                    node
+                });
+                this.path += `/${node.raw}`;
+            }
         }
     }
     VisitSingleNavigation(node, context, type) {
@@ -489,20 +508,48 @@ class ResourcePathVisitor {
         context.literal = JSON.parse(node.raw);
     }
     VisitEnum(node, context, type) {
-        this.Visit(node.value.value, context, type);
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const enumName = node.value.name.raw.split('.');
+            context.enumName = enumName.pop();
+            context.enumNamespace = enumName.join('.');
+            yield this.Visit(node.value.value, context, type);
+        });
     }
     VisitEnumValue(node, context, type) {
-        this.Visit(node.value.values[0], context, type);
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            yield this.Visit(node.value.values[0], context, type);
+        });
     }
     VisitEnumerationMember(node, context, type) {
-        if (context.filter && type) {
-            node.type = lexer_1.TokenType.EnumMemberValue;
-            node.raw = `${type && type[node.value.name]}`;
-            node.value = context.typeName;
-        }
-        else {
-            context.literal = (type && type[node.value.name]) || node.value.name;
-        }
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (context.filter && type) {
+                node.type = lexer_1.TokenType.EnumMemberValue;
+                const deserializer = Edm.getURLDeserializer(type, context.typeName, context.type, this.serverType.container);
+                if (deserializer) {
+                    node.raw = yield deserializer(node.value.name);
+                    node.value = node.raw;
+                }
+                else {
+                    const { enumNamespace, enumName } = context;
+                    const qualifiedEnumTypeName = `${enumNamespace}.${enumName}`;
+                    if (!(context.type || context.typeName) && enumNamespace && enumName) {
+                        context.type = this.serverType.container[qualifiedEnumTypeName] || this.serverType.container[context.enumName];
+                        const containerType = Object.getPrototypeOf(this.serverType.container).constructor;
+                        context.typeName =
+                            Edm.getTypeName(containerType, qualifiedEnumTypeName, this.serverType.container) ||
+                                Edm.getTypeName(containerType, enumName, this.serverType.container) ||
+                                "Edm.Int32";
+                    }
+                    node[exports.ODATA_TYPE] = context.type;
+                    node[exports.ODATA_TYPENAME] = context.typeName;
+                    node.raw = `${context.type && context.type[node.value.name]}`;
+                    node.value = context.typeName;
+                }
+            }
+            else {
+                context.literal = (type && type[node.value.name]) || node.value.name;
+            }
+        });
     }
     VisitEnumMemberValue(node, context, type) {
         context.literal = odata_v4_literal_1.Literal.convert(node.value, node.raw);
